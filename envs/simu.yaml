@@ -1,0 +1,13 @@
+# envs/simu.yaml
+name: simu
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base=4.3
+  - r-optparse   # optionnel pour des scripts plus complexes
+  - r-data.table
+  - python=3.10
+  - pandas
+  - numpy
+  - faker

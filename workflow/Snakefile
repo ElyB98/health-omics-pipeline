@@ -1,0 +1,141 @@
+# workflow/Snakefile
+
+# Import preprocessing rules
+include: "rules/preprocessing.smk"
+
+rule all:
+    input:
+      # "data/simulated_metabolomics/metabolomics.csv",
+      #  "data/clinical_metadata.csv",
+        "data/processed/rnaseq_normalized.csv",
+      # "data/processed/metabolomics_preprocessed.csv",
+        "data/processed/integrated_dataset.csv",
+        "results/pca_plot.png",
+        "results/model_comparison.csv",
+        "results/roc_logreg.png",
+        "results/confusion_matrix_logreg.png",
+        "models/best_randomforest.pkl",
+        "results/feature_importance_gini.png",
+        "results/shap_summary_plot.png",
+
+
+# Rule: Simulate RNA-seq data
+#rule simulate_rnaseq:
+#    output:
+#        expand("data/simulated_rnaseq/sample_{i}.fq", i=range(1, 101))
+#    conda:
+#        workflow.source_path("../envs/simu.yaml")
+#    script:
+#        "../scripts/simulate_rnaseq.R"
+
+# Rule: Simulate metabolomics data
+#rule simulate_metabolomics:
+#    output:
+#        "data/simulated_metabolomics/metabolomics.csv"
+#    conda:
+#        workflow.source_path("../envs/simu.yaml")
+#    script:
+#        "../scripts/simulate_metabolomics.py"
+
+# Rule: Generate synthetic clinical metadata
+#rule generate_clinical_metadata:
+#    output:
+#        "data/clinical_metadata.csv"
+#    conda:
+#        workflow.source_path("../envs/simu.yaml")
+#    script:
+#        "../scripts/generate_clinical_metadata.py"
+
+rule normalize_rnaseq:
+    input:
+        "data/raw/TCGA-BRCA.star_fpkm-uq.tsv"
+    output:
+        "data/processed/rnaseq_normalized.csv"
+    conda:
+        workflow.source_path("../envs/health-omics.yaml")
+    script:
+        "../scripts/normalize_rnaseq.py"
+
+
+# Rule: Integrate omics and clinical data
+rule integrate_omics:
+    input:
+        rnaseq="data/processed/rnaseq_normalized.csv",
+        clinical="data/processed/clinical_metadata.csv"
+    output:
+        "data/processed/integrated_dataset.csv"
+    conda:
+        workflow.source_path("../envs/health-omics.yaml")
+    shell:
+        """
+        python scripts/integrate_omics.py \
+            --rnaseq {input.rnaseq} \
+            --clinical {input.clinical} \
+            --output {output}
+        """
+
+# rule integrate_omics:
+#     input:
+#         rnaseq="data/processed/rnaseq_normalized.csv",
+#         metabolomics="data/processed/metabolomics_preprocessed.csv",
+#         clinical="data/clinical_metadata.csv"
+#     output:
+#         "data/processed/integrated_dataset.csv"
+#     conda:
+#         workflow.source_path("../envs/health-omics.yaml")
+#     shell:
+#         """
+#         python scripts/integrate_omics.py \
+#             --rnaseq {input.rnaseq} \
+#             --metabolomics {input.metabolomics} \
+#             --clinical {input.clinical} \
+#             --output {output}
+#         """
+
+# Rule: Perform PCA and generate visualization
+rule exploratory_analysis:
+    input:
+        "data/processed/integrated_dataset.csv"
+    output:
+        "results/pca_plot.png",
+        "results/eda_integrated_dataset.html"
+    conda:
+        workflow.source_path("../envs/eda-env.yaml")
+    shell:
+        """
+        cd notebooks
+        jupyter nbconvert --to html --execute eda_integrated_dataset.ipynb --ExecutePreprocessor.timeout=600 --output ../results/eda_integrated_dataset.html
+        mv pca_plot.png ../results/pca_plot.png
+        """
+
+
+
+
+# Rule: Train and evaluate models
+rule evaluate_models:
+    input:
+        "data/processed/integrated_dataset.csv"
+    output:
+        "results/roc_logreg.png",
+        "results/confusion_matrix_logreg.png",
+        "results/model_comparison.csv",
+        "models/best_randomforest.pkl"
+    conda:
+        workflow.source_path("../envs/health-omics.yaml")
+    script:
+        "../scripts/evaluate_models.py"
+
+# Rule: Interpret model with SHAP and Gini
+rule interpret_model:
+    input:
+        model="models/best_randomforest.pkl",
+        data="data/processed/integrated_dataset.csv"
+    output:
+        "results/feature_importance_gini.png",
+        "results/shap_summary_plot.png"
+    conda:
+        workflow.source_path("../envs/health-omics.yaml")
+    script:
+        "../scripts/interpret_model.py"
+
+

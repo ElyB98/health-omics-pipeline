@@ -1,0 +1,17 @@
+cat <<EOF > .gitignore
+# Ignore raw and processed data
+data/
+results/
+
+# Ignore Snakemake and Conda environments
+.snakemake/
+**/.snakemake/
+
+# Ignore temporary and cache files
+*.log
+*.out
+*.tmp
+*.nbconvert.ipynb
+*.ipynb_checkpoints/
+__pycache__/
+EOF

@@ -14,39 +14,37 @@ This project provides a modular and reproducible Snakemake pipeline for preproce
 
 ## Project Structure
 
+```text
 health-omics-pipeline/
-│
-├── data/
-│ ├── raw/ # Real-world TCGA data
-│ │ └── TCGA-BRCA.star_fpkm-uq.tsv
-│ ├── processed/ # Normalized & merged datasets
-│ │ ├── rnaseq_normalized.csv
-│ │ ├── integrated_dataset.csv
-│ │ └── clinical_metadata.csv
-│ ├── simulated_rnaseq/ # Simulated RNA-seq fastq files
-│ ├── simulated_metabolomics/ # Simulated metabolomics matrix
-│ └── clinical_metadata.csv # (used for simulation only)
-│
-├── envs/ # Conda environments (simu, eda, modeling)
-├── models/ # Trained model outputs (.pkl)
+├── data/                  
+│   ├── raw/                  # Real-world TCGA data
+│   │   └── TCGA-BRCA.star_fpkm-uq.tsv
+│   ├── processed/            # Normalized & merged datasets
+│   │   ├── rnaseq_normalized.csv
+│   │   └── integrated_dataset.csv
+│   ├── clinical_metadata.csv
+│   ├── simulated_rnaseq/     # Simulated RNA-seq FASTQ files
+│   ├── simulated_metabolomics/
+│   └── clinical_metadata.csv # for simulated data
+├── envs/                   # Conda environments
+├── models/                 # Trained models (.pkl)
 ├── notebooks/
-│ ├── eda_simulated_dataset.ipynb
-│ └── eda_integrated_dataset.ipynb
-│
-├── results/ # Visualizations and evaluation metrics
-│ ├── roc_logreg.png
-│ ├── confusion_matrix_logreg.png
-│ ├── pca_plot.png
-│ ├── shap_summary_plot.png
-│ ├── feature_importance_gini.png
-│ └── eda_integrated_dataset.html
-│
-├── rules/ # Snakemake rule files (e.g., preprocessing.smk)
-├── scripts/ # Python & R scripts for processing
+│   ├── eda_simulated_dataset.ipynb
+│   └── eda_integrated_dataset.ipynb
+├── results/
+│   ├── roc_logreg.png
+│   ├── confusion_matrix_logreg.png
+│   ├── pca_plot.png
+│   ├── shap_summary_plot.png
+│   ├── feature_importance_gini.png
+│   └── eda_integrated_dataset.html
+├── rules/                  # Snakemake rules (e.g., preprocessing.smk)
+├── scripts/                # Python & R scripts
 ├── workflow/
-│ └── Snakefile # Master pipeline
-│
-├── README.md # Documentation
+│   └── Snakefile
+└── README.md
+```
+
 
 
 ## Pipeline Summary
